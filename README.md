@@ -1,25 +1,17 @@
-# Shrink Scripts (Barba)
+# QDA — qda.global
 
-Webflow JS bundle boilerplate — **with Barba.js page transitions**.
+Webflow JS bundle for the Quantum Datacenter Alliance event site — Barba.js page transitions (panel/label slide), GSAP, Lenis. Served via jsDelivr.
+
+- **Repo:** `shrinkstudio/qda` · **Lenis global:** `window.__qdaLenis`
+- **Custom ease:** `osmo` — `0.625, 0.05, 0, 1`
 
 ## Quick start
-
-1. Click **"Use this template"** on GitHub to create your project repo
-2. Find-replace these placeholders across all files:
-
-| Placeholder | Example | Description |
-|---|---|---|
-| `TEMPLATE_PROJECT_NAME` | `my-client` | Package name and log prefix |
-| `TEMPLATE_CUSTOM_EASE_NAME` | `osmo` | GSAP CustomEase name |
-| `TEMPLATE_CUSTOM_EASE_VALUE` | `0.625, 0.05, 0, 1` | CustomEase cubic values |
-| `TEMPLATE_LENIS_GLOBAL` | `__myClientLenis` | `window.` property for Lenis instance |
-
-3. Install and build:
 
 ```bash
 npm install
 npm run build    # one-time build
 npm run watch    # rebuild on save
+npm run deploy   # build + commit + push + print pinned jsDelivr URL (see Deploy)
 ```
 
 ## Webflow setup
@@ -47,14 +39,7 @@ Add these to **Site Settings → Custom Code → Head Code** (before `</head>`):
 
 ### Bundle script
 
-Add to **Site Settings → Custom Code → Footer Code** (before `</body>`):
-
-```html
-<script src="https://cdn.jsdelivr.net/gh/YOUR_ORG/YOUR_REPO@COMMIT_SHA/dist/index.min.js"></script>
-```
-
-> **Always pin to a commit SHA** — never use `@latest`. After pushing, purge the cache:
-> `https://purge.jsdelivr.net/gh/YOUR_ORG/YOUR_REPO@COMMIT_SHA/dist/index.min.js`
+See **[Deploy](#deploy)** below — during dev the bundle is registered via the Webflow Scripts API at a commit-pinned jsDelivr URL; at go-live it becomes a plain `@main` footer embed.
 
 ### Webflow markup
 
@@ -124,19 +109,48 @@ if (has('[data-my-module]')) initMyModule(nextPage);
 
 3. Build and push.
 
-## Default transition
+## Transition (panel / label slide)
 
-Ships with a simple cross-fade (0.4s). Replace `runPageLeaveAnimation()` and `runPageEnterAnimation()` in `transitions.js` with your project-specific animations (wipes, slides, etc.).
+A panel slides up covering the page, shows the next page's name label, holds, then exits upward as the new page enters from below. Lives in `runPageLeaveAnimation()` / `runPageEnterAnimation()` in `transitions.js`. Respects `prefers-reduced-motion` (and missing markup) — falls back to an instant swap.
 
-The transition respects `prefers-reduced-motion` — falls back to instant opacity swap.
+Required markup (place once, outside the Barba container — e.g. in the page wrapper):
 
-## Deployment
-
-```bash
-npm run build
-git add dist/index.min.js src/
-git commit -m "description of changes"
-git push
+```html
+<div data-transition-wrap>
+  <div data-transition-panel>
+    <div data-transition-label>
+      <span data-transition-label-text></span>
+    </div>
+  </div>
+</div>
 ```
 
-Then purge jsDelivr cache for the pinned commit SHA.
+Each Barba container sets the label text via an attribute on itself:
+
+```html
+<main data-barba="container" data-barba-namespace="programme" data-page-name="Programme">
+```
+
+## Deploy
+
+**During dev — commit-pinned via the Webflow Scripts API.** Commit-SHA jsDelivr URLs are immutable, so each push is served instantly with no purge lag.
+
+```bash
+npm run deploy -- "what changed"
+```
+
+This builds, commits, pushes, then prints the **pinned URL**, its **SRI integrity hash**, and a **version** string. Register/update the bundle in Webflow with those three values (Scripts API → `registerScript` hosted, then apply to the site's custom code). On each subsequent deploy, re-register with the new values (version must be unique per commit).
+
+```
+hostedLocation : https://cdn.jsdelivr.net/gh/shrinkstudio/qda@<sha>/dist/index.min.js
+integrityHash  : sha384-…
+version        : <short-sha>
+```
+
+**At go-live — plain `@main` footer embed.** Drop the Scripts API registration and add to **Site Settings → Custom Code → Footer Code**:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/gh/shrinkstudio/qda@main/dist/index.min.js"></script>
+```
+
+After a push, purge: `https://purge.jsdelivr.net/gh/shrinkstudio/qda@main/dist/index.min.js`. Never use `@latest`.

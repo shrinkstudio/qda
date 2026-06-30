@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "watch": "node build.js --watch"
+    "watch": "node build.js --watch",
+    "deploy": "node scripts/deploy.js"
   },
   "devDependencies": {
     "esbuild": "^0.27.4"

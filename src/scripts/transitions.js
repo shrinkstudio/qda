@@ -35,9 +35,8 @@ const has = (s) => !!nextPage.querySelector(s);
 let staggerDefault = 0.05;
 let durationDefault = 0.6;
 
-// TODO: swap for QDA's chosen animation/ease (Ben sourcing — placeholder is the osmo ease-out)
-CustomEase.create("qda", "0.625, 0.05, 0, 1");
-gsap.defaults({ ease: "qda", duration: durationDefault });
+CustomEase.create("osmo", "0.625, 0.05, 0, 1");
+gsap.defaults({ ease: "osmo", duration: durationDefault });
 
 
 // -----------------------------------------
@@ -96,8 +95,12 @@ function initAfterEnterFunctions(next) {
 
 
 // -----------------------------------------
-// PAGE TRANSITIONS (Simple Fade)
-// Replace with project-specific animations
+// PAGE TRANSITIONS (Panel / label slide)
+// Panel slides up showing the next page's name label,
+// holds, then exits upward as the new page enters from below.
+// Markup: [data-transition-wrap] > [data-transition-panel]
+//         + [data-transition-label] > [data-transition-label-text]
+// Next page name read from container's [data-page-name].
 // -----------------------------------------
 
 function runPageOnceAnimation(next) {
@@ -107,38 +110,94 @@ function runPageOnceAnimation(next) {
 }
 
 function runPageLeaveAnimation(current, next) {
+  const transitionWrap = document.querySelector("[data-transition-wrap]");
+  const transitionPanel = transitionWrap?.querySelector("[data-transition-panel]");
+  const transitionLabel = transitionWrap?.querySelector("[data-transition-label]");
+  const transitionLabelText = transitionWrap?.querySelector("[data-transition-label-text]");
+
+  const nextPageName = next.getAttribute("data-page-name");
+  if (transitionLabelText) transitionLabelText.innerText = nextPageName || "";
+
   const tl = gsap.timeline({
     onComplete: () => { current.remove(); }
   });
 
-  if (reducedMotion) {
+  if (reducedMotion || !transitionPanel) {
     return tl.set(current, { autoAlpha: 0 });
   }
 
   tl.set(next, { autoAlpha: 0 }, 0);
+  tl.set(transitionPanel, { autoAlpha: 1 }, 0);
 
-  tl.to(current, {
+  tl.fromTo(transitionPanel, {
+    yPercent: 0,
+  }, {
+    yPercent: -100,
+    duration: 0.8,
+  }, 0);
+
+  tl.fromTo(transitionLabel, {
     autoAlpha: 0,
-    duration: 0.4,
+  }, {
+    autoAlpha: 1,
+  }, "<+=0.2");
+
+  tl.fromTo(current, {
+    y: "0vh",
+  }, {
+    y: "-15vh",
+    duration: 0.8,
   }, 0);
 
   return tl;
 }
 
 function runPageEnterAnimation(next) {
+  const transitionWrap = document.querySelector("[data-transition-wrap]");
+  const transitionPanel = transitionWrap?.querySelector("[data-transition-panel]");
+  const transitionLabel = transitionWrap?.querySelector("[data-transition-label]");
+
   const tl = gsap.timeline();
 
-  if (reducedMotion) {
+  if (reducedMotion || !transitionPanel) {
     tl.set(next, { autoAlpha: 1 });
     tl.add("pageReady");
     tl.call(resetPage, [next], "pageReady");
     return new Promise(resolve => tl.call(resolve, null, "pageReady"));
   }
 
-  tl.to(next, {
+  tl.add("startEnter", 1.25);
+
+  tl.set(next, {
     autoAlpha: 1,
+  }, "startEnter");
+
+  tl.fromTo(transitionPanel, {
+    yPercent: -100,
+  }, {
+    yPercent: -200,
+    duration: 1,
+    overwrite: "auto",
+    immediateRender: false,
+  }, "startEnter");
+
+  tl.set(transitionPanel, {
+    autoAlpha: 0,
+  }, ">");
+
+  tl.fromTo(transitionLabel, {
+    autoAlpha: 1,
+  }, {
+    autoAlpha: 0,
     duration: 0.4,
-  }, 0);
+    overwrite: "auto",
+    immediateRender: false,
+  }, "startEnter+=0.1");
+
+  tl.from(next, {
+    y: "15vh",
+    duration: 1,
+  }, "startEnter");
 
   tl.add("pageReady");
   tl.call(resetPage, [next], "pageReady");

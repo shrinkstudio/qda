@@ -13,6 +13,7 @@ import { initFontSizeDetect, initFooterYear, initSkipLink } from './utilities.js
 import { initNavScrollHide, destroyNavScrollHide } from './nav.js';
 import { initFormValidation, destroyFormValidation } from './form-validate.js';
 import { initCopyLink, destroyCopyLink } from './copy-link.js';
+import { initHoverList, destroyHoverList } from './hover-list.js';
 
 gsap.registerPlugin(CustomEase);
 if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -53,6 +54,7 @@ function initOnceFunctions() {
   initFontSizeDetect();
   initSkipLink();
   initCopyLink();
+  initHoverList(); // persistent nav — lives outside the Barba container
 }
 
 function initBeforeEnterFunctions(next) {

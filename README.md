@@ -21,10 +21,11 @@ npm run deploy   # build + commit + push + print pinned jsDelivr URL (see Deploy
 Add these to **Site Settings → Custom Code → Head Code** (before `</head>`):
 
 ```html
-<!-- GSAP -->
+<!-- GSAP (load these BLOCKING, not defer — the footer bundle runs after them) -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/CustomEase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/Flip.min.js"></script><!-- nav hover-list -->
 
 <!-- Lenis smooth scroll -->
 <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
@@ -73,6 +74,7 @@ For nav links that should update `aria-current` on transition, add `data-barba-u
 | `form-validate.js` | `[data-form-validate]` | Live form validation with spam protection |
 | `theme-toggle.js` | `[data-theme-toggle]` | Dark/light mode with localStorage |
 | `copy-link.js` | `[data-copy-link]` | Copy link href to clipboard |
+| `hover-list.js` | `[data-hover-item]` | Flip-powered nav hover highlight (needs GSAP **Flip** in head). Inits once on the persistent nav. |
 | `utilities.js` | — | Font size detect, footer year, skip link |
 
 All modules export both `initX(scope)` and `destroyX()` functions. The destroy function is called automatically before each Barba transition.
@@ -156,7 +158,7 @@ version        : 0.0.<n>   (auto-incrementing SemVer from commit count)
 
 **Each subsequent deploy:**
 1. `npm run deploy -- "msg"` → copy the three values
-2. `update_registered_script` → site, script_id `qdabundle`, new hostedLocation + integrityHash + version
+2. `register_hosted_script` again with **the same display_name `qdabundle`** + the new hostedLocation/integrityHash/version → this adds a new version under the same script id. (Note: `update_registered_script` 404s — don't use it; re-register instead.)
 3. `set_site_scripts` → re-apply `qdabundle` at the new version
 4. Publish the site.
 

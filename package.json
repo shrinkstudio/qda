@@ -1,7 +1,7 @@
 {
-  "name": "TEMPLATE_PROJECT_NAME",
+  "name": "qda",
   "version": "1.0.0",
-  "description": "TEMPLATE_PROJECT_NAME Webflow site — JS bundle served via jsDelivr",
+  "description": "qda Webflow site — JS bundle served via jsDelivr",
   "type": "module",
   "scripts": {
     "build": "node build.js",

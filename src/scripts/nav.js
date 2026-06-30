@@ -101,8 +101,8 @@ export function initNavScrollHide(scope) {
   navResizeObserver.observe(nav);
 
   // Hook into Lenis if available (exposed as module-level `lenis` in transitions.js)
-  if (window.TEMPLATE_LENIS_GLOBAL) {
-    window.TEMPLATE_LENIS_GLOBAL.on('scroll', onScroll);
+  if (window.__qdaLenis) {
+    window.__qdaLenis.on('scroll', onScroll);
   } else {
     // Fallback to native scroll
     nativeHandler = onNativeScroll;
@@ -127,8 +127,8 @@ export function destroyNavScrollHide() {
   }
 
   // Remove Lenis listener
-  if (window.TEMPLATE_LENIS_GLOBAL) {
-    window.TEMPLATE_LENIS_GLOBAL.off('scroll', onScroll);
+  if (window.__qdaLenis) {
+    window.__qdaLenis.off('scroll', onScroll);
   }
 
   // Remove native listener

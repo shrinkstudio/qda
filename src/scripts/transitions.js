@@ -1,5 +1,5 @@
 // -----------------------------------------
-// TEMPLATE_PROJECT_NAME — PAGE TRANSITIONS
+// qda — PAGE TRANSITIONS
 // Barba.js + GSAP + Lenis
 // -----------------------------------------
 
@@ -35,8 +35,9 @@ const has = (s) => !!nextPage.querySelector(s);
 let staggerDefault = 0.05;
 let durationDefault = 0.6;
 
-CustomEase.create("TEMPLATE_CUSTOM_EASE_NAME", "TEMPLATE_CUSTOM_EASE_VALUE");
-gsap.defaults({ ease: "TEMPLATE_CUSTOM_EASE_NAME", duration: durationDefault });
+// TODO: swap for QDA's chosen animation/ease (Ben sourcing — placeholder is the osmo ease-out)
+CustomEase.create("qda", "0.625, 0.05, 0, 1");
+gsap.defaults({ ease: "qda", duration: durationDefault });
 
 
 // -----------------------------------------
@@ -247,7 +248,7 @@ function initLenis() {
     wheelMultiplier: 1.25,
   });
 
-  window.TEMPLATE_LENIS_GLOBAL = lenis;
+  window.__qdaLenis = lenis;
 
   if (hasScrollTrigger) {
     lenis.on("scroll", ScrollTrigger.update);

@@ -42,17 +42,20 @@ if (dirty) {
 }
 execSync("git push -q origin HEAD", { stdio: "inherit" });
 
-// 3. Pinned URL + SRI integrity hash
+// 3. Pinned URL + SRI integrity hash + SemVer version
 const sha = run("git rev-parse HEAD");
 const sri = "sha384-" + createHash("sha384").update(readFileSync(FILE)).digest("base64");
 const url = `https://cdn.jsdelivr.net/gh/${REPO}@${sha}/${FILE}`;
+// Webflow registerScript requires a UNIQUE SemVer per update — derive a
+// monotonic patch from the total commit count so it always increments.
+const version = `0.0.${run("git rev-list --count HEAD")}`;
 
 log("\n─────────────────────────────────────────────");
 log("  PINNED DEPLOY — register/update in Webflow Scripts API");
 log("─────────────────────────────────────────────");
 log(`  hostedLocation : ${url}`);
 log(`  integrityHash  : ${sri}`);
-log(`  version        : ${sha.slice(0, 7)}   (registerScript requires a unique version)`);
+log(`  version        : ${version}`);
 log("─────────────────────────────────────────────");
-log("  Short SHA: " + sha.slice(0, 7));
+log(`  Short SHA: ${sha.slice(0, 7)}`);
 log("");

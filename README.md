@@ -139,13 +139,30 @@ Each Barba container sets the label text via an attribute on itself:
 npm run deploy -- "what changed"
 ```
 
-This builds, commits, pushes, then prints the **pinned URL**, its **SRI integrity hash**, and a **version** string. Register/update the bundle in Webflow with those three values (Scripts API → `registerScript` hosted, then apply to the site's custom code). On each subsequent deploy, re-register with the new values (version must be unique per commit).
+This builds, commits, pushes, then prints the three values the Webflow Scripts API needs:
 
 ```
 hostedLocation : https://cdn.jsdelivr.net/gh/shrinkstudio/qda@<sha>/dist/index.min.js
 integrityHash  : sha384-…
-version        : <short-sha>
+version        : 0.0.<n>   (auto-incrementing SemVer from commit count)
 ```
+
+**Webflow target:** site `QDA 2026` — site ID `6a4388bee541ed8521db00b0` (`qda-2026`). Registered script id: `qdabundle`, applied in the **footer**.
+
+**First-time registration** (already done):
+1. `register_hosted_script` → site, hostedLocation, integrityHash, version, display_name `qdabundle`
+2. `set_site_scripts` → `[{ id: "qdabundle", location: "footer", version }]` (creates the custom-code block; `add_site_script` 404s until the block exists)
+3. Publish the site for it to take effect.
+
+**Each subsequent deploy:**
+1. `npm run deploy -- "msg"` → copy the three values
+2. `update_registered_script` → site, script_id `qdabundle`, new hostedLocation + integrityHash + version
+3. `set_site_scripts` → re-apply `qdabundle` at the new version
+4. Publish the site.
+
+**Gotchas:**
+- The Scripts API rejects `defer` — applied-script `attributes` may only be `data-*`. The bundle is therefore a plain footer `<script>`. Keep the head deps (GSAP/Barba/Lenis/Swiper) as **blocking** `<script src>` tags so they load before the footer bundle runs.
+- `version` must be a unique SemVer per update — the helper derives `0.0.<commit-count>`.
 
 **At go-live — plain `@main` footer embed.** Drop the Scripts API registration and add to **Site Settings → Custom Code → Footer Code**:
 

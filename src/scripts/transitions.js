@@ -14,6 +14,7 @@ import { initNavScrollHide, destroyNavScrollHide } from './nav.js';
 import { initFormValidation, destroyFormValidation } from './form-validate.js';
 import { initCopyLink, destroyCopyLink } from './copy-link.js';
 import { initHoverList, destroyHoverList } from './hover-list.js';
+import { initLogoWallCycle, destroyLogoWallCycle } from './logo-wall.js';
 
 gsap.registerPlugin(CustomEase);
 if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -68,6 +69,7 @@ function initBeforeEnterFunctions(next) {
   destroyInlineVideos();
   destroyModals();
   destroyFormValidation();
+  destroyLogoWallCycle();
 }
 
 function initAfterEnterFunctions(next) {
@@ -81,6 +83,7 @@ function initAfterEnterFunctions(next) {
   if (has('[data-video]'))                  initInlineVideos(nextPage);
   if (has('dialog'))                        initModals(nextPage);
   if (has('[data-form-validate]'))          initFormValidation(nextPage);
+  if (has('[data-logo-wall-cycle-init]'))   initLogoWallCycle(nextPage);
   if (has('[data-footer-year]'))            initFooterYear(nextPage);
 
   // Re-evaluate inline scripts inside the new container (Webflow embeds)

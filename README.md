@@ -75,6 +75,7 @@ For nav links that should update `aria-current` on transition, add `data-barba-u
 | `theme-toggle.js` | `[data-theme-toggle]` | Dark/light mode with localStorage |
 | `copy-link.js` | `[data-copy-link]` | Copy link href to clipboard |
 | `hover-list.js` | `[data-hover-item]` | Flip-powered nav hover highlight (needs GSAP **Flip** in head). Inits once on the persistent nav. |
+| `logo-wall.js` | `[data-logo-wall-cycle-init]` | Looping logo swap grid; pauses off-screen (ScrollTrigger) and when tab hidden. |
 | `utilities.js` | — | Font size detect, footer year, skip link |
 
 All modules export both `initX(scope)` and `destroyX()` functions. The destroy function is called automatically before each Barba transition.

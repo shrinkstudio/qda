@@ -153,7 +153,7 @@ function runPageLeaveAnimation(current, next) {
   tl.fromTo(current, {
     y: "0vh",
   }, {
-    y: "-15vh",
+    y: "-10dvh",
     duration: 0.8,
   }, 0);
 
@@ -202,10 +202,15 @@ function runPageEnterAnimation(next) {
     immediateRender: false,
   }, "startEnter+=0.1");
 
+  // New page rises into place (Buff Motion page-rise): power2.inOut so it eases
+  // IN behind the panel's slow start then settles with no snap; 7dvh travel —
+  // 15 exposed layout edges on tall pages. Started a hair after the panel so its
+  // settle lands just after the reveal, not locked to it.
   tl.from(next, {
-    y: "15vh",
+    y: "7dvh",
     duration: 1,
-  }, "startEnter");
+    ease: "power2.inOut",
+  }, "startEnter+=0.1");
 
   tl.add("pageReady");
   tl.call(resetPage, [next], "pageReady");
@@ -330,7 +335,19 @@ function initLenis() {
 
 function resetPage(container) {
   window.scrollTo(0, 0);
-  gsap.set(container, { clearProps: "position,top,left,right" });
+  gsap.set(container, {
+    clearProps: "position,top,left,right,transform,translate,x,y,xPercent,yPercent,scale,rotate"
+  });
+
+  // Belt-and-braces (from Buff Motion): clearProps zeros the transform values
+  // but can leave an identity `transform: translate(0px,0px)` inline. Per CSS
+  // spec ANY transform other than `none` (identity included) makes the element
+  // a containing block for position:fixed/absolute descendants — which is what
+  // breaks the revealed page's content after the rise. Force-remove the inline
+  // props so the container returns to a truly transform-less state.
+  ['transform', 'translate', 'scale', 'rotate'].forEach(prop => {
+    container.style.removeProperty(prop);
+  });
 
   if (hasLenis) {
     lenis.resize();

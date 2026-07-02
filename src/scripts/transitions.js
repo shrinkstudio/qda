@@ -226,11 +226,17 @@ function runPageEnterAnimation(next) {
 // -----------------------------------------
 
 barba.hooks.beforeEnter(data => {
+  // page-main is a Client-First `flex: 1` sticky-footer child. position:fixed
+  // drops it out of the flex flow, so flex:1 stops stretching it and any
+  // flex/%-height hero inside collapses to content height (the "half hero rises,
+  // then the rest loads" bug). Pin a definite viewport height while fixed so
+  // flex children resolve normally; resetPage clears it afterwards.
   gsap.set(data.next.container, {
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
+    height: "100dvh",
   });
 
   if (lenis && typeof lenis.stop === "function") {
@@ -336,7 +342,7 @@ function initLenis() {
 function resetPage(container) {
   window.scrollTo(0, 0);
   gsap.set(container, {
-    clearProps: "position,top,left,right,transform,translate,x,y,xPercent,yPercent,scale,rotate"
+    clearProps: "position,top,left,right,bottom,width,height,transform,translate,x,y,xPercent,yPercent,scale,rotate"
   });
 
   // Belt-and-braces (from Buff Motion): clearProps zeros the transform values

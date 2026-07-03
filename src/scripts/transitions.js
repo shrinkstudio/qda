@@ -56,7 +56,12 @@ function initOnceFunctions() {
   initFontSizeDetect();
   initSkipLink();
   initCopyLink();
-  initHoverList(); // persistent nav — lives outside the Barba container
+  // Nav (with the hover-list) lives INSIDE the Barba container, so it's also
+  // re-inited per-page in initAfterEnterFunctions + destroyed in
+  // initBeforeEnterFunctions. Kept here too so first load works regardless of
+  // whether afterEnter fires on Barba's `once`. The data-hover-init guard makes
+  // the overlap a safe no-op.
+  initHoverList();
 }
 
 function initBeforeEnterFunctions(next) {
@@ -72,6 +77,7 @@ function initBeforeEnterFunctions(next) {
   destroyFormValidation();
   destroyLogoWallCycle();
   destroyListLoad();
+  destroyHoverList(); // nav lives INSIDE the Barba container — swapped every nav
 }
 
 function initAfterEnterFunctions(next) {
@@ -87,6 +93,7 @@ function initAfterEnterFunctions(next) {
   if (has('[data-form-validate]'))          initFormValidation(nextPage);
   if (has('[data-logo-wall-cycle-init]'))   initLogoWallCycle(nextPage);
   if (has('[data-list-load]'))              initListLoad(nextPage);
+  if (has('[data-hover-item]'))             initHoverList(nextPage);
   if (has('[data-footer-year]'))            initFooterYear(nextPage);
 
   // Re-evaluate inline scripts inside the new container (Webflow embeds)
@@ -117,14 +124,16 @@ function runPageOnceAnimation(next) {
   return tl;
 }
 
-function runPageLeaveAnimation(current, next) {
+function runPageLeaveAnimation(current, next, data) {
   const transitionWrap = document.querySelector("[data-transition-wrap]");
   const transitionPanel = transitionWrap?.querySelector("[data-transition-panel]");
   const transitionLabel = transitionWrap?.querySelector("[data-transition-label]");
   const transitionLabelText = transitionWrap?.querySelector("[data-transition-label-text]");
 
-  const nextPageName = next.getAttribute("data-page-name");
-  if (transitionLabelText) transitionLabelText.innerText = nextPageName || "";
+  const nextPageName = getPageLabel(next, data);
+  // Only overwrite when we resolved a name — otherwise keep the markup default
+  // so the label never flashes empty mid-transition.
+  if (transitionLabelText && nextPageName) transitionLabelText.innerText = nextPageName;
 
   const tl = gsap.timeline({
     onComplete: () => { current.remove(); }
@@ -285,7 +294,7 @@ barba.init({
       },
 
       async leave(data) {
-        return runPageLeaveAnimation(data.current.container, data.next.container);
+        return runPageLeaveAnimation(data.current.container, data.next.container, data);
       },
 
       async enter(data) {
@@ -299,6 +308,30 @@ barba.init({
 // -----------------------------------------
 // HELPERS
 // -----------------------------------------
+
+// Resolve the label shown mid-transition. Prefers an explicit [data-page-name]
+// on the next container; falls back to the clicked link's text (clean for nav
+// clicks), then the next page's <title> (first segment before a separator or
+// "… at …"). Returns "" if nothing usable, so the caller keeps the default.
+function getPageLabel(container, data) {
+  const explicit = container?.getAttribute("data-page-name");
+  if (explicit && explicit.trim()) return explicit.trim();
+
+  const trigger = data?.trigger;
+  if (trigger && typeof trigger === "object" && trigger.textContent) {
+    const t = trigger.textContent.replace(/\s+/g, " ").trim();
+    if (t) return t;
+  }
+
+  const html = data?.next?.html;
+  if (html) {
+    const m = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    if (m && m[1].trim()) {
+      return m[1].split(/\s[|–—·]\s|\s+at\s+/i)[0].trim();
+    }
+  }
+  return "";
+}
 
 const themeConfig = {
   light: { nav: "dark", transition: "light" },

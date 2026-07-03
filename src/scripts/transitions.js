@@ -17,6 +17,7 @@ import { initHoverList, destroyHoverList } from './hover-list.js';
 import { initLogoWallCycle, destroyLogoWallCycle } from './logo-wall.js';
 import { initListLoad, destroyListLoad } from './list-load.js';
 import { initContentReveal, destroyContentReveal } from './content-reveal.js';
+import { initMiniShowreel, destroyMiniShowreel } from './mini-showreel.js';
 
 gsap.registerPlugin(CustomEase);
 if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -80,6 +81,7 @@ function initBeforeEnterFunctions(next) {
   destroyListLoad();
   destroyHoverList(); // nav lives INSIDE the Barba container — swapped every nav
   destroyContentReveal();
+  destroyMiniShowreel();
 }
 
 function initAfterEnterFunctions(next) {
@@ -97,6 +99,7 @@ function initAfterEnterFunctions(next) {
   if (has('[data-list-load]'))              initListLoad(nextPage);
   if (has('[data-hover-item]'))             initHoverList(nextPage);
   if (has('[data-reveal-group]'))           initContentReveal(nextPage);
+  if (has('[data-mini-showreel-open]'))     initMiniShowreel(nextPage);
   if (has('[data-footer-year]'))            initFooterYear(nextPage);
 
   // Re-evaluate inline scripts inside the new container (Webflow embeds)

@@ -77,6 +77,7 @@ For nav links that should update `aria-current` on transition, add `data-barba-u
 | `hover-list.js` | `[data-hover-item]` | Flip-powered nav hover highlight (needs GSAP **Flip** in head). Inits once on the persistent nav. |
 | `logo-wall.js` | `[data-logo-wall-cycle-init]` | Looping logo swap grid; pauses off-screen (ScrollTrigger) and when tab hidden. |
 | `list-load.js` | `[data-list-load="more\|all\|infinite"]` | Paginated CMS list loading (load-more / load-all / infinite scroll). Replaces Finsweet CMS Load. |
+| `content-reveal.js` | `[data-reveal-group]` | Staggered scroll reveal (ScrollTrigger). Nested groups via `[data-reveal-group-nested]`; per-group `data-stagger`/`data-distance`/`data-start`/`data-ignore`. |
 | `utilities.js` | — | Font size detect, footer year, skip link |
 
 All modules export both `initX(scope)` and `destroyX()` functions. The destroy function is called automatically before each Barba transition.

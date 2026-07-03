@@ -77,9 +77,18 @@ export function initMiniShowreel(scope) {
     if (pw) pw.style.zIndex = pwZ;
   }
 
+  // YouTube iframes (embed with ?enablejsapi=1) are driven via postMessage;
+  // Vimeo setups keep working via their [data-vimeo-control] buttons.
+  function ytCommand(wrap, func) {
+    wrap.querySelectorAll('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]').forEach((frame) => {
+      frame.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
+    });
+  }
+
   function playFor(name) {
     var wrap = getPW(name);
     if (!wrap) return;
+    ytCommand(wrap, 'playVideo');
     var playBtn = wrap.querySelector('[data-vimeo-control="play"]');
     if (playBtn) playBtn.click();
   }
@@ -87,6 +96,7 @@ export function initMiniShowreel(scope) {
   function stopFor(name) {
     var wrap = getPW(name);
     if (!wrap) return;
+    ytCommand(wrap, 'pauseVideo');
     var pauseBtn = wrap.querySelector('[data-vimeo-control="pause"]');
     if (pauseBtn) pauseBtn.click();
   }

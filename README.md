@@ -79,6 +79,7 @@ For nav links that should update `aria-current` on transition, add `data-barba-u
 | `list-load.js` | `[data-list-load="more\|all\|infinite"]` | Paginated CMS list loading (load-more / load-all / infinite scroll). Replaces Finsweet CMS Load. |
 | `content-reveal.js` | `[data-reveal-group]` | Staggered scroll reveal (ScrollTrigger). Nested groups via `[data-reveal-group-nested]`; per-group `data-stagger`/`data-distance`/`data-start`/`data-ignore`. |
 | `mini-showreel.js` | `[data-mini-showreel-open="name"]` | Flip lightbox video player (needs GSAP **Flip**). Player flips into `[data-mini-showreel-target]` inside `[data-mini-showreel-lightbox="name"]`; close via `[data-mini-showreel-close]`/Esc; clicks `[data-vimeo-control="play"/"pause"]` on open/close if present. |
+| `agenda-toc.js` | `[data-agenda-toc]` | Start-time index rail for the agenda. Clones `[data-agenda-toc-template]` per `[data-agenda-toc-card]` (first `HH:MM` in `[data-agenda-toc-times]`), skips TBC rows, collapses consecutive duplicate times, click scrolls (Lenis), scrollspy toggles `is-active`. |
 | `utilities.js` | — | Font size detect, footer year, skip link |
 
 All modules export both `initX(scope)` and `destroyX()` functions. The destroy function is called automatically before each Barba transition.

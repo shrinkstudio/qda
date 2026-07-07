@@ -41,6 +41,14 @@ if (dirty) {
   log("▶ No changes to commit — re-pinning current HEAD.");
 }
 execSync("git push -q origin HEAD", { stdio: "inherit" });
+// Verify the push actually landed — a network blip here previously left the
+// repo silently ahead of origin while the deploy looked half-successful.
+const localHead = run("git rev-parse HEAD");
+const remoteHead = run("git ls-remote origin -h refs/heads/main").split("\t")[0];
+if (localHead !== remoteHead) {
+  throw new Error(`Push verification failed: local ${localHead.slice(0, 7)} vs origin ${remoteHead.slice(0, 7)}`);
+}
+log("▶ Push verified on origin/main.");
 
 // 3. Pinned URL + SRI integrity hash + SemVer version
 const sha = run("git rev-parse HEAD");

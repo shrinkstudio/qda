@@ -95,7 +95,7 @@ function initAfterEnterFunctions(next) {
   if (has('[data-tabs-component]'))         initTabs(nextPage);
   if (has('[data-slider]'))                 initSliders(nextPage);
   if (has('[data-video]'))                  initInlineVideos(nextPage);
-  if (has('dialog'))                        initModals(nextPage);
+  if (has('dialog') || has('[data-modal-panel]')) initModals(nextPage);
   if (has('[data-form-validate]'))          initFormValidation(nextPage);
   if (has('[data-logo-wall-cycle-init]'))   initLogoWallCycle(nextPage);
   if (has('[data-list-load]'))              initListLoad(nextPage);

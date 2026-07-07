@@ -34,6 +34,7 @@ function closeModal(modal) {
   if (modal.tagName === "DIALOG") {
     modal.close();
   } else {
+    gsap.killTweensOf(modal);
     gsap.killTweensOf(modal.querySelectorAll("*"));
     modal.classList.remove(OPEN_CLASS);
     document.body.style.overflow = "";
@@ -43,23 +44,30 @@ function closeModal(modal) {
 }
 
 function animateModalIn(modal) {
-  // Fade in the overlay
-  gsap.fromTo(modal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 });
-
-  // Stagger children of the content container
   const container = modal.querySelector("[data-modal-panel-content]");
-  if (container) {
-    const children = Array.from(container.children);
-    gsap.fromTo(children, {
-      autoAlpha: 0,
-      y: 40,
-    }, {
+  const children = container ? Array.from(container.children) : [];
+  // The content container's parent is the modal card in this markup pattern
+  const card = container ? container.parentElement : null;
+
+  const tl = gsap.timeline();
+
+  // Content hidden from frame 1 so it can't flash during the card-in phase
+  if (children.length) tl.set(children, { autoAlpha: 0, y: 40 }, 0);
+
+  // Phase 1 — modal in: overlay fade + card rise
+  tl.fromTo(modal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0);
+  if (card) {
+    tl.fromTo(card, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.05);
+  }
+
+  // Phase 2 — THEN the content staggers in
+  if (children.length) {
+    tl.to(children, {
       autoAlpha: 1,
       y: 0,
       duration: 0.8,
       stagger: 0.1,
-      delay: 0.15,
-    });
+    }, 0.5);
   }
 }
 
